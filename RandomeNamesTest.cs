@@ -10,7 +10,7 @@ using FluentAssertions;
     big picture: I imagine 
                 1) a provider of random numbers, like rolling a dice.
                    but the System.Random.Next() would be hard to test.
-                   So use an interface (IRoll) that I can provided a "loaded dice" implementation, in addition to system.random.
+                   So use an interface (IRoll) that I can provide a "loaded dice" implementation, in addition to system.random.
                    This is an example of I in Grenning's TDD guided by zombies. https://blog.wingman-sw.com/tdd-guided-by-zombies
 
                 2) a list of possible names 
@@ -112,15 +112,15 @@ public class RandomNamesTest
 
         names.Should().Contain(ran.Next());
 
-        // what else to check? that it does not run off end of array? 
-        // that all names got picked?  (that latter check revealed a mistake so is proved a good one)            
+        // ok, how would I have more confidence it worked? 
+        // Distribution? No, don't need to test system.random. Just the hook up.
+        // That it does not run off end of array? 
+        // that all names got picked?  (that latter check revealed an off-by-one mistake so proved a good one)            
 
         var chosen = new HashSet<string>();
-
         foreach (var _ in Enumerable.Range(1,100)) {
             chosen.Add(ran.Next());
         }
-
 
         chosen.Count.Should().Be(4); 
 
