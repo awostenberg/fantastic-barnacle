@@ -2,10 +2,12 @@ namespace rando;
 using FluentAssertions;
 
 /* 
-    roll random names 
-        bearing in mind Aristotle's dictum "we build to understand" what if we built this TDD? 
-
-    begin with an inital test list (TDD in states and moves http://tinyurl.com/bdhk8apt)
+    generate random names
+        q: why not use https://github.com/bchavez/Bogus ?
+        a: that would get the immediate job done, and quicker. But when we worked this yesterday together it was not clear
+           how to do it in the TDD style. Bearing in mind Aristotle's dictum "we build to understand" let's try it.
+ 
+    Begin with an inital test list (TDD in states and moves http://tinyurl.com/bdhk8apt)
 
     big picture: I imagine 
                 1) a provider of random numbers, like rolling a dice.
