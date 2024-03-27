@@ -1,5 +1,10 @@
+using System.Reflection.Metadata.Ecma335;
+
 namespace rando;
+
+using System.Runtime.CompilerServices;
 using FluentAssertions;
+using Xunit.Abstractions;
 
 /* 
     generate random names
@@ -32,25 +37,6 @@ using FluentAssertions;
         
 */
 
-
-class RandomName {
-    readonly string[] _names;
-    readonly IRoll _rollDice;       // does the name reveal intent? I am thinking "roll" and "deal" from APL.
-
-    public RandomName(string[] names, IRoll r) {
-        _names = names;
-        _rollDice = r;
-    }
-
-    public string Next() => _names[_rollDice.Next()];
-
-    internal RandomName Skip()
-    {
-       _ = _rollDice.Next();
-       return this;
-    }
-}
-
 public interface IRoll {
     public int Next();
 
@@ -70,7 +56,7 @@ class SequentialLoadedDice:IRoll {
 }
 
 class SystemRandomDice:IRoll {
-    // dice to use in production -- adapting the system psuedo-random number generator 
+    // dice for use in production adapt the system psuedo-random number generator 
     private readonly int _nSides;
     private readonly Random _random;
 
@@ -83,41 +69,52 @@ class SystemRandomDice:IRoll {
     public int Next() => _random.Next(0, _nSides);
 }
 
+class RandomOf<T> {
+    T[] _items;
+    private IRoll _dice;
+
+    public RandomOf(T[] items, IRoll d) {
+        _items = items;
+        _dice = d;
+    }
+    public T Next() => _items[_dice.Next()];
+    internal RandomOf<T> Skip()
+    {
+        _ = _dice.Next();
+        return this;
+    }
+}
 
 public class RandomNamesTest
 {
-    private static RandomName DiceFor(params string[] names) {
-        RandomName r =  new(names, new SequentialLoadedDice(names.Length));
-        return r;
-}
+    RandomOf<T> DiceFor<T>(params T[] items) {
+        return new RandomOf<T>(items,new SequentialLoadedDice(items.Length));
+    }
+
     [Fact]
     public void RollOne() =>
-        DiceFor("Matthew").Next().Should().Be("Matthew");
-
+        DiceFor<string>("Matthew").Next().Should().Be("Matthew");
 
     [Fact]
     public void RollTwo() => 
-        DiceFor("Matthew", "Mark").Skip().Next().Should().Be("Mark");
+        DiceFor<string>("Matthew", "Mark").Skip().Next().Should().Be("Mark");
 
     [Fact]
     public void RollThree() => 
-        DiceFor("Matthew", "Mark").Skip().Skip().Next().Should().Be("Matthew");
-
+        DiceFor<string>("Matthew", "Mark").Skip().Skip().Next().Should().Be("Matthew");
 
     [Fact]
     public void SysRandom() {
    
-        string[] names = {"Matthew","Mark","Luke","John"};
-        var sysran = new SystemRandomDice(names.Length);
-
-        var ran = new RandomName(names,sysran);
+        string[] names = {"Matthew","Mark","Luke","John"}; 
+        var ran = new RandomOf<string>(names,new SystemRandomDice(names.Length));
 
         names.Should().Contain(ran.Next());
 
-        // ok, how would I have more confidence it worked? 
-        // Distribution? No, don't need to test system.random. Just the hook up.
-        // That it does not run off end of array? 
-        // that all names got picked?  (that latter check revealed an off-by-one mistake so proved a good one)            
+        // How would I have more confidence it worked? 
+        // Histogram the distribution? No, don't need to test system.random. Just the hook up.
+        // That it does not run off end of strings array ✅
+        // That all names got picked? ✅  (that latter check revealed an off-by-one mistake so proved a good check)            
 
         var chosen = new HashSet<string>();
         foreach (var _ in Enumerable.Range(1,100)) {
