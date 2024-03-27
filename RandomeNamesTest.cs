@@ -12,7 +12,7 @@ using FluentAssertions;
     big picture: I imagine 
                 1) a provider of random numbers, like rolling a dice.
                    but the System.Random.Next() would be hard to test.
-                   So use an interface (IRoll) that I can provide a "loaded dice" implementation, in addition to system.random.
+                   So use an interface (IRoller) that I can provide a "loaded dice" implementation, in addition to system.random.
                    This is an example of I in Grenning's TDD guided by zombies. https://blog.wingman-sw.com/tdd-guided-by-zombies
 
                 2) a list of possible names 
@@ -32,12 +32,12 @@ using FluentAssertions;
         
 */
 
-public interface IRoll {
+public interface IRoller {
     public int Next();
 
 }
 
-class SequentialLoadedDice:IRoll {
+class SequentialLoadedDice:IRoller {
     // loaded dice yield a monotonically increasing sequence (1, 2, 3, ... n) for easier testability; 
     readonly int _nSides;
     int _lastValueRolledZeroBased = 0;
@@ -50,7 +50,7 @@ class SequentialLoadedDice:IRoll {
     }
 }
 
-class SystemRandomDice:IRoll {
+class SystemRandomDice:IRoller {
     // dice for use in production adapt the system psuedo-random number generator 
     private readonly int _nSides;
     private readonly Random _random;
@@ -65,10 +65,10 @@ class SystemRandomDice:IRoll {
 }
 
 class RandomOf<T> {
-    T[] _items;
-    private IRoll _dice;
+    readonly T[] _items;
+    private IRoller _dice;
 
-    public RandomOf(T[] items, IRoll d) {
+    public RandomOf(T[] items, IRoller d) {
         _items = items;
         _dice = d;
     }
@@ -82,21 +82,21 @@ class RandomOf<T> {
 
 public class RandomNamesTest
 {
-    RandomOf<T> DiceFor<T>(params T[] items) {
+    static RandomOf<T> DiceFor<T>(params T[] items) {
         return new RandomOf<T>(items,new SequentialLoadedDice(items.Length));
     }
 
     [Fact]
     public void RollOne() =>
-        DiceFor<string>("Matthew").Next().Should().Be("Matthew");
+        DiceFor("Matthew").Next().Should().Be("Matthew");
 
     [Fact]
-    public void RollTwo() => 
-        DiceFor<string>("Matthew", "Mark").Skip().Next().Should().Be("Mark");
+    public void RollTwo() =>
+        DiceFor("Matthew", "Mark").Skip().Next().Should().Be("Mark");
 
     [Fact]
-    public void RollThree() => 
-        DiceFor<string>("Matthew", "Mark").Skip().Skip().Next().Should().Be("Matthew");
+    public void RollThree() =>
+        DiceFor("Matthew", "Mark").Skip().Skip().Next().Should().Be("Matthew");
 
     [Fact]
     public void SysRandom() {
