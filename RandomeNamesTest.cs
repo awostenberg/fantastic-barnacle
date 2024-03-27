@@ -1,10 +1,5 @@
-using System.Reflection.Metadata.Ecma335;
-
 namespace rando;
-
-using System.Runtime.CompilerServices;
 using FluentAssertions;
-using Xunit.Abstractions;
 
 /* 
     generate random names
@@ -108,7 +103,7 @@ public class RandomNamesTest
    
         string[] names = {"Matthew","Mark","Luke","John"}; 
         var ran = new RandomOf<string>(names,new SystemRandomDice(names.Length));
-
+        
         names.Should().Contain(ran.Next());
 
         // How would I have more confidence it worked? 
