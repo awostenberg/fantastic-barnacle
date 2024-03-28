@@ -82,21 +82,21 @@ class RandomOf<T> {
 
 public class RandomNamesTest
 {
-    static RandomOf<T> DiceFor<T>(params T[] items) {
+    static RandomOf<T> LoadedDiceFor<T>(params T[] items) {
         return new RandomOf<T>(items,new SequentialLoadedDice(items.Length));
     }
 
     [Fact]
     public void RollOne() =>
-        DiceFor("Matthew").Next().Should().Be("Matthew");
+        LoadedDiceFor("Matthew").Next().Should().Be("Matthew");
 
     [Fact]
     public void RollTwo() =>
-        DiceFor("Matthew", "Mark").Skip().Next().Should().Be("Mark");
+        LoadedDiceFor("Matthew", "Mark").Skip().Next().Should().Be("Mark");
 
     [Fact]
     public void RollThree() =>
-        DiceFor("Matthew", "Mark").Skip().Skip().Next().Should().Be("Matthew");
+        LoadedDiceFor("Matthew", "Mark").Skip().Skip().Next().Should().Be("Matthew");
 
     [Fact]
     public void SysRandom() {
