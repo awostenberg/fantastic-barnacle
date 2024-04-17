@@ -64,24 +64,31 @@ class SystemRandomDice:IRoller {
     public int Next() => _random.Next(0, _nSides);
 }
 
-class RandomOf<T> {
-    readonly T[] _items;
-    private IRoller _dice;
-
-    public RandomOf(T[] items, IRoller d) {
-        _items = items;
-        _dice = d;
-    }
-    public T Next() => _items[_dice.Next()];
+class RandomOf<T>(T[] items, IRoller d)
+{
+    public T Next() => items[d.Next()];
     internal RandomOf<T> Skip()
     {
-        _ = _dice.Next();
+        _ = d.Next();
         return this;
     }
 }
 
+class Name(string First, String Last) {
+    public string Full() => First+Last;
+};
+public record Person(string FirstName, string LastName);
+
 public class RandomNamesTest
 {
+    [Fact]
+    void mobetta(){
+        var js = new Person("John","Smith");
+        var jd = new Person("Jane","Doe");
+        var jsII = new Person("John","Smith");
+        js.Should().Be(jsII);
+
+    }
     static RandomOf<T> LoadedDiceFor<T>(params T[] items) {
         return new RandomOf<T>(items,new SequentialLoadedDice(items.Length));
     }
