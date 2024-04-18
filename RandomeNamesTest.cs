@@ -82,13 +82,13 @@ public record Person(string FirstName, string LastName);
 public class RandomNamesTest
 {
     [Fact]
-    void mobetta(){
-        var js = new Person("John","Smith");
-        var jd = new Person("Jane","Doe");
-        var jsII = new Person("John","Smith");
-        js.Should().Be(jsII);
-
-    }
+    void compareSamePersons() =>
+        new Person("John","Smith").Should().Be(new Person("John","Smith"));
+    
+    [Fact]
+    void compareDifferentPersons() =>
+        new Person("John","Smith").Should().NotBe(new Person("Jane","Doe"));
+      
     static RandomOf<T> LoadedDiceFor<T>(params T[] items) {
         return new RandomOf<T>(items,new SequentialLoadedDice(items.Length));
     }
